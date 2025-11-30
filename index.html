@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lecteur Audio Avancé</title>
+  <script src="https://unpkg.com/tone@latest/build/Tone.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="player">
+    <h2>🎧 Lecteur Audio Avancé</h2>
+
+    <label for="trackSelect">Choisir un fichier :</label>
+    <select id="trackSelect">
+      <option value="audio/Leçon 5-Let's groove-Arnaud Martin.mp3">Leçon 5 – Let's Groove</option>
+      <option value="audio/Leçon 9-Chaise longue.m4a">Leçon 9 – Chaise Longue</option>
+    </select>
+
+    <button id="playPause">▶️ Lecture</button>
+
+    <label>Vitesse : <span id="speedVal">1.00×</span></label>
+    <input id="speed" type="range" min="0.5" max="2" step="0.05" value="1">
+
+    <label>Hauteur : <span id="pitchVal">0</span> demi-ton(s)</label>
+    <input id="pitch" type="range" min="-12" max="12" step="1" value="0">
+  </div>
+
+<script>
+let player, pitchShift;
+let isPlaying = false;
+
+function loadTrack(src) {
+  if (player) player.dispose();
+  if (pitchShift) pitchShift.dispose();
+  pitchShift = new Tone.PitchShift({ pitch: 0 }).toDestination();
+  player = new Tone.Player(src).connect(pitchShift);
+  player.playbackRate = 1;
+}
+
+const selector = document.getElementById("trackSelect");
+loadTrack(selector.value);
+
+selector.addEventListener("change", () => loadTrack(selector.value));
+
+document.getElementById("playPause").addEventListener("click", async () => {
+  await Tone.start();
+  if (!isPlaying) {
+    player.start();
+    isPlaying = true;
+    playPause.textContent = "⏸ Pause";
+  } else {
+    player.stop();
+    isPlaying = false;
+    playPause.textContent = "▶️ Lecture";
+  }
+});
+
+document.getElementById("speed").addEventListener("input", e => {
+  let v = parseFloat(e.target.value);
+  player.playbackRate = v;
+  speedVal.textContent = v.toFixed(2) + "×";
+});
+
+document.getElementById("pitch").addEventListener("input", e => {
+  let p = parseInt(e.target.value);
+  pitchShift.pitch = p;
+  pitchVal.textContent = p;
+});
+</script>
+</body>
+</html>
